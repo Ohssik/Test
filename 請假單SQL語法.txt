@@ -1,0 +1,23 @@
+SELECT
+ m.RequisitionID,[FormNumber] as 表單編號,
+       m.[ApplicantID] as 申請人ID,[ApplicantName] as 申請人姓名
+      ,[ApplicantDept] as 申請人部門代碼
+      ,[ApplicantDeptName] as 申請人部門                 
+      ,[ApplicantDateTime] as 申請時間            
+      ,[JobNumber] as 工號
+      ,[JobTitle] as 職稱
+      ,[AgentName] as 代理人,[AgentAccount] as 代理人ID         
+      ,Convert(char(10),[VaSdate],111) as 起始日
+      ,Convert(char(10),[VaEdate],111) as 結束日
+      ,[VaStime1] as 起始時
+      ,[VaStime2] as 起始分
+      ,[VaEtime1] as 結束時
+      ,[VaEtime2] as 結束分
+      ,[C_Days] as 請假天數      ,[C_Hours] as 不滿一天的請假時數                  
+      ,[C_Subject] as 請假事由
+      ,l.ApproveTime as 最後簽核時間
+  FROM [BPMDEV].[dbo].[FM7T_HR02_M] as m join [BPMDEV].[dbo].FSe7en_Sys_Requisition as r on m.RequisitionID=r.RequisitionID
+  join (SELECT RequisitionID,ApproveTime from [BPMDEV].[dbo].[FM7T_HR02_L] where ProcessID='RtSpcJbg01') as l on l.RequisitionID=m.RequisitionID 
+  where r.Status in ('0','1')
+and m.ApplicantDateTime between '2021-04-01 00:00:00' and '2021-07-01 00:00:00'
+order by m.ApplicantDateTime asc

@@ -1,0 +1,29 @@
+SELECT distinct
+      m.[RequisitionID]
+      ,[員工編號]
+      ,[員工姓名]
+      ,[ApplicantDept]
+      ,[ApplicantDeptName]
+,JobTitle   
+      ,[申請種類]      
+      ,[加班開始日期]
+      ,[加班結束日期]
+      ,[假別]
+      ,[開始時間時]
+      ,[開始時間分]
+      ,[結束時間時]
+      ,[結束時間分]
+      ,[加班時數]      
+      ,[申請日期]           
+      ,[詳述加班內容]
+      --,l1.ApproveTime as 部門主管簽核
+	  ,(select convert(nvarchar,ApproveTime,120)+'/' from [FM7T_HR13_L] L4 where L4.RequisitionID=m.RequisitionID and L4.ProcessID='RtSpcJbg01' for xml path('')) as 部級主管簽核
+	  ,(select convert(nvarchar,ApproveTime,120)+'/' from [FM7T_HR13_L] L3 where L3.RequisitionID=m.RequisitionID and L3.ProcessID='RtSpcJbg02' for xml path('')) as 處級主管簽核
+      --,l2.ApproveTime as 處級主管簽核           
+  FROM [BPMDEV].[dbo].[AX_HR05_T] as m join [BPMDEV].[dbo].FSe7en_Sys_Requisition as r on m.RequisitionID=r.RequisitionID
+  join [BPMDEV].[dbo].[FM7T_HR13_M] as m2 on m.RequisitionID=m2.RequisitionID
+  join (SELECT RequisitionID,ApproveTime from [BPMDEV].[dbo].[FM7T_HR13_L] where ProcessID='RtSpcJbg01') as l1 on l1.RequisitionID=m.RequisitionID
+  full outer join (SELECT RequisitionID,ApproveTime from [BPMDEV].[dbo].[FM7T_HR13_L] where ProcessID='RtSpcJbg02') as l2 on l2.RequisitionID=m.RequisitionID 
+  where r.Status=1 and m.申請日期 between '2021-04-01 00:00:00' and '2021-08-24 00:00:00'
+ --and m.RequisitionID='a8176809-b2d5-4131-aadf-7f180b1b5efe' --and 員工姓名='林雅惠'
+order by 申請日期 desc
